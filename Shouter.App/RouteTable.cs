@@ -4,6 +4,7 @@
     using SimpleHttpServer.Models;
     using SimpleMVC.Routers;
     using System.Collections.Generic;
+    using System.IO;
 
     public static class RouteTable
     {
@@ -15,11 +16,59 @@
                 {
                     new Route()
                     {
-                    Name = "Controller/Action/GET",
-                    Method = RequestMethod.GET,
-                    UrlRegex = @"^/(.+)/(.+)",
-                    Callable = new ControllerRouter().Handle
-                },
+                        Name = "Bootstrap JS",
+                        Method = RequestMethod.GET,
+                        UrlRegex = "/bootstrap/js/bootstrap.min.js$",
+                        Callable = (request) =>
+                        {
+                            var response = new HttpResponse()
+                            {
+                                StatusCode = ResponseStatusCode.Ok,
+                                ContentAsUTF8 = File.ReadAllText("../../Content/bootstrap/js/bootstrap.min.js")
+                            };
+                            response.Header.ContentType = "application/x-javascript";
+                            return response;
+                        }
+                    },
+                    new Route()
+                    {
+                        Name = "Bootstrap CSS",
+                        Method = RequestMethod.GET,
+                        UrlRegex = "/bootstrap/css/bootstrap.min.css$",
+                        Callable = (request) =>
+                        {
+                            var response = new HttpResponse()
+                            {
+                                StatusCode = ResponseStatusCode.Ok,
+                                ContentAsUTF8 = File.ReadAllText("../../Content/bootstrap/css/bootstrap.min.css")
+                            };
+                            response.Header.ContentType = "text/css";
+                            return response;
+                        }
+                    },
+                    new Route()
+                    {
+                        Name = "Site Favicon",
+                        Method = RequestMethod.GET,
+                        UrlRegex = "/favicon.ico$",
+                        Callable = (request) =>
+                        {
+                            var response = new HttpResponse()
+                            {
+                                StatusCode = ResponseStatusCode.Ok,
+                                Content = File.ReadAllBytes("../../Content/favicon.ico")
+                            };
+                            response.Header.ContentType = "img/ico";
+                            return response;
+                        }
+                    },
+                    new Route()
+                    {
+                        Name = "Controller/Action/GET",
+                        Method = RequestMethod.GET,
+                        UrlRegex = @"^/(.+)/(.+)",
+                        Callable = new ControllerRouter().Handle
+                    },
                     new Route()
                     {
                         Name = "Controller/Action/POST",
