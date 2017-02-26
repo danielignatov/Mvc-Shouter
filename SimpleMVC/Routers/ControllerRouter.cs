@@ -35,6 +35,7 @@ namespace SimpleMVC.Routers
         }
         public HttpResponse Handle(HttpRequest request)
         {
+            this.ClearParameters();
             this.request = request;
             this.response = new HttpResponse();
             this.ParseInput();
@@ -49,7 +50,6 @@ namespace SimpleMVC.Routers
                 this.response.ContentAsUTF8 = result.Invoke();
             }
 
-            this.ClearParameters();
 
             return this.response;
         }
@@ -96,7 +96,7 @@ namespace SimpleMVC.Routers
                     if (pair.Contains("="))
                     {
                         string[] keyValue = pair.Split('=');
-                        this.getParams.Add(keyValue[0], keyValue[1]);
+                        this.getParams[keyValue[0].ToLower()] = keyValue[1];
                     }
                 }
             }
@@ -109,7 +109,7 @@ namespace SimpleMVC.Routers
                 foreach (var pair in pairs)
                 {
                     string[] keyValue = pair.Split('=');
-                    this.postParams.Add(keyValue[0], keyValue[1]);
+                    this.postParams[keyValue[0].ToLower()] = keyValue[1];
                 }
             }
 
@@ -136,7 +136,13 @@ namespace SimpleMVC.Routers
             {
                 if (param.ParameterType.IsPrimitive || param.ParameterType.Name == "String")
                 {
-                    object value = this.getParams[param.Name];
+                    object value = null;
+                    string parameterName = param.Name.ToLower();
+                    if (this.getParams.ContainsKey(parameterName))
+                    {
+                        value = this.getParams[parameterName];
+                    }
+
                     this.methodParams[index] = Convert.ChangeType(
                         value,
                         param.ParameterType
@@ -169,19 +175,15 @@ namespace SimpleMVC.Routers
 
                     foreach (PropertyInfo property in properties)
                     {
-                        property.SetValue(
-                            bindingModel,
-                            Convert.ChangeType(
-                                this.postParams[property.Name],
-                                property.PropertyType
-                                )
-                            );
+                        string propertyName = property.Name.ToLower();
+                        if (this.postParams.ContainsKey(propertyName))
+                        {
+                            property.SetValue(
+                            bindingModel, Convert.ChangeType(this.postParams[propertyName], property.PropertyType));
+                        }
                     }
 
-                    this.methodParams[index] = Convert.ChangeType(
-                        bindingModel,
-                        bindingModelType
-                        );
+                    this.methodParams[index] = Convert.ChangeType(bindingModel, bindingModelType);
                     index++;
                 }
             }
@@ -200,8 +202,8 @@ namespace SimpleMVC.Routers
                 "{0}.{1}.{2}",
                 MvcContext.Current.AssemblyName,
                 MvcContext.Current.ControllersFolder,
-                this.controllerName);                                       
-                                                                   
+                this.controllerName);
+
             var controller =
                 (Controller)Activator.CreateInstance(MvcContext.Current.ApplicationAssembly.GetType(controllerType));
             return controller;
@@ -216,7 +218,7 @@ namespace SimpleMVC.Routers
                     .GetCustomAttributes()
                     .Where(a => a is HttpMethodAttribute);
 
-                if (!attributes.Any())
+                if (!attributes.Any() && this.requestMethod == "GET")
                 {
                     return methodInfo;
                 }

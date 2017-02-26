@@ -53,7 +53,6 @@
     <Compile Include="MvcContext.cs" />
     <Compile Include="MvcEngine.cs" />
     <Compile Include="Routers\ControllerRouter.cs" />
-    <Compile Include="Utilities\FileRead.cs" />
     <Compile Include="ViewEngine\ActionResult.cs" />
     <Compile Include="ViewEngine\Generic\ActionResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
