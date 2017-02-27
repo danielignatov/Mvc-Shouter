@@ -85,6 +85,7 @@
     </Compile>
     <Compile Include="Models\Notification.cs" />
     <Compile Include="Tools\Extensions.cs" />
+    <Compile Include="Tools\FileRead.cs" />
     <Compile Include="ViewModels\FollowerViewModel.cs" />
     <Compile Include="BindingModels\LoginUserBindingModel.cs" />
     <Compile Include="BindingModels\RegisterUserBindingModel.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="Routes.cs" />
     <Compile Include="Security\SignInManager.cs" />
     <Compile Include="ViewModels\NotificationViewModel.cs" />
+    <Compile Include="ViewModels\LoginRegisterUserErrorMessageViewModel.cs" />
     <Compile Include="ViewModels\ShoutViewModel.cs" />
     <Compile Include="ViewModels\UserProfileViewModel.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />

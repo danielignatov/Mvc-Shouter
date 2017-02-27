@@ -1,16 +1,21 @@
-﻿using SimpleMVC.Interfaces.Generic;
-
-namespace Shouter.Views.User
+﻿namespace Shouter.Views.User
 {
+    using SimpleMVC.Interfaces.Generic;
     using System.Collections.Generic;
-    using System.IO;
     using System.Text;
+    using Tools;
     using ViewModels;
+
     public class Followers : IRenderable<List<UserViewModel>>
     {
+        #region Properties
+        public List<UserViewModel> Model { get; set; }
+        #endregion
+
+        #region Methods
         public string Render()
         {
-            string followersHtml = File.ReadAllText("../../content/following.html");
+            string followersHtml = FileRead.HtmlDocument("../../Content/following.html");
             StringBuilder pageBuilder = new StringBuilder();
             foreach (var userViewModel in Model)
             {
@@ -20,7 +25,6 @@ namespace Shouter.Views.User
             followersHtml = followersHtml.Replace("##followers##", pageBuilder.ToString());
             return followersHtml;
         }
-
-        public List<UserViewModel> Model { get; set; }
+        #endregion
     }
 }

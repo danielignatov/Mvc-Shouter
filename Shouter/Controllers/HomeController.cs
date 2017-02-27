@@ -1,10 +1,9 @@
-﻿using SimpleMVC.Attributes.Methods;
-using SimpleMVC.Controllers;
-using SimpleMVC.Interfaces;
-using SimpleMVC.Interfaces.Generic;
-
-namespace Shouter.Controllers
+﻿namespace Shouter.Controllers
 {
+    using SimpleMVC.Attributes.Methods;
+    using SimpleMVC.Controllers;
+    using SimpleMVC.Interfaces;
+    using SimpleMVC.Interfaces.Generic;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -19,26 +18,49 @@ namespace Shouter.Controllers
 
     public class HomeController : Controller
     {
+        #region Fields
         private ShouterData data;
         private SignInManager signInManager;
+        #endregion
 
+        #region Constructors
         public HomeController()
             :this(new ShouterContext())
         {
             
         }
+
         public HomeController(IShouterContext context)
         {
             this.data = new ShouterData(context);
             this.signInManager = new SignInManager(this.data.Context);
         }
+        #endregion
 
+        #region Methods
+        [HttpGet]
+        public IActionResult Index(HttpResponse response, HttpSession session)
+        {
+            if (this.signInManager.IsAuthenticated(session))
+            {
+                this.Redirect(response, "/home/feedSigned");
+                return null;
+            }
+            else
+            {
+                this.Redirect(response, "/home/feed");
+                return null;
+            }
+        }
+
+        [HttpGet]
         public IActionResult<List<ShoutViewModel>> FeedSigned(HttpResponse response, HttpSession session)
         {
             if (this.signInManager.IsAuthenticated(session))
             {
                 var shouts = this.data.ShoutRepository.UpdateAndGetAllShouts();
                 var shoutViewModels = new List<ShoutViewModel>();
+
                 foreach (var shout in shouts)
                 {
                     var shoutViewModel = new ShoutViewModel()
@@ -47,14 +69,17 @@ namespace Shouter.Controllers
                         Content = shout.Content,
                         PostedForTime = Extensions.CalculateTimeSincePost(shout.PostedOn)
                     };
+
                     shoutViewModels.Add(shoutViewModel);
                 }
+
                 this.data.SaveChanges();
+
                 return this.View(shoutViewModels);
             }
             else
             {
-                this.Redirect(response,"/home/feed");
+                this.Redirect(response, "/home/feed");
                 return null;
             }
         }
@@ -63,32 +88,39 @@ namespace Shouter.Controllers
         public IActionResult FeedSigned(HttpResponse response, HttpSession session, ShoutBindingModel sbm)
         {
             var user = this.data.LoginRepository.FindUserByLogin(session.Id);
+
             var shout = new Shout()
             {
                 Author = user,
                 Content = sbm.Content,
                 PostedOn = DateTime.Now
             };
+
             if (sbm.Lifetime != 0)
             {
                 shout.Lifetime = new TimeSpan(sbm.Lifetime, 59, 59);
             }
+
             var notification = new Notification()
             {
                 ShoutAuthor = user
             };
+
             var followedBy = this.data.UsersRepository.Find(u => u.Following.Select(f => f.Id).Contains(user.Id));
+
             foreach (var follower in followedBy)
             {
                 follower.Notifications.Add(notification);
             }
+
             this.data.ShoutRepository.Insert(shout);
             this.data.SaveChanges();
+
             Redirect(response,"/home/feedSigned");
             return null;
         }
 
-
+        [HttpGet]
         public IActionResult<List<ShoutViewModel>> Feed(HttpResponse response, HttpSession session)
         {
             if (this.signInManager.IsAuthenticated(session))
@@ -99,6 +131,7 @@ namespace Shouter.Controllers
 
             var shouts = this.data.ShoutRepository.UpdateAndGetAllShouts();
             var shoutViewModels = new List<ShoutViewModel>();
+
             foreach (var shout in shouts)
             {
                 var shoutViewModel = new ShoutViewModel()
@@ -107,20 +140,28 @@ namespace Shouter.Controllers
                     Content = shout.Content,
                     PostedForTime = Extensions.CalculateTimeSincePost(shout.PostedOn)
                 };
+
                 shoutViewModels.Add(shoutViewModel);
             }
+
             this.data.SaveChanges();
             return this.View(shoutViewModels);
         }
 
-        public IActionResult Register()
+        [HttpGet]
+        public IActionResult<LoginRegisterUserErrorMessageViewModel> Register()
         {
-            return this.View();
+            var viewModel = new LoginRegisterUserErrorMessageViewModel();
+            viewModel.Message = null;
+
+            return this.View(viewModel);
         }
 
         [HttpPost]
-        public IActionResult Register(HttpResponse response, RegisterUserBindingModel rubm)
+        public IActionResult<LoginRegisterUserErrorMessageViewModel> Register(HttpResponse response, RegisterUserBindingModel rubm)
         {
+            var viewModel = new LoginRegisterUserErrorMessageViewModel();
+
             if (rubm.Password == rubm.ConfirmedPassword)
             {
                 var user = new User()
@@ -130,14 +171,20 @@ namespace Shouter.Controllers
                     Password = rubm.Password,
                     Username = rubm.Username
                 };
+
                 this.data.UsersRepository.Insert(user);
                 this.data.SaveChanges();
-                this.Redirect(response, "/home/feed");
+
+                this.Redirect(response, "/home/login");
                 return null;
             }
-            return this.View();
+
+            viewModel.Message = "Passwords does not match.";
+
+            return this.View(viewModel);
         }
 
+        [HttpGet]
         public IActionResult Login()
         {
             return this.View();
@@ -147,6 +194,7 @@ namespace Shouter.Controllers
         public IActionResult Login(HttpResponse response, HttpSession session, LoginUserBindingModel lubm)
         {
             var user = this.data.UsersRepository.FindUserByUserName(lubm.Username);
+
             if (user != null && user.Password == lubm.Password)
             {
                 this.data.LoginRepository.CreateLogin(session.Id, user);
@@ -155,17 +203,20 @@ namespace Shouter.Controllers
                 this.Redirect(response, "/home/feedSigned");
                 return null;
             }
+
             return this.View();
         }
 
+        [HttpGet]
         public IActionResult Logout(HttpResponse response, HttpSession session)
         {
             var login = this.data.LoginRepository.FindByPredicate(l => l.SessionId == session.Id);
             this.data.LoginRepository.Delete(login);
             this.data.SaveChanges();
+
             this.Redirect(response,"/home/feed");
             return null;
-
         }
+        #endregion
     }
 }

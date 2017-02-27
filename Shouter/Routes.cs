@@ -1,7 +1,6 @@
-﻿using SimpleMVC.Routers;
-
-namespace Shouter
+﻿namespace Shouter
 {
+    using SimpleMVC.Routers;
     using System.Collections.Generic;
     using System.IO;
     using SimpleHttpServer.Enums;
@@ -25,14 +24,13 @@ namespace Shouter
                             var response = new HttpResponse()
                             {
                                 StatusCode = ResponseStatusCode.Ok,
-                                Content = File.ReadAllBytes(@"../../content/images/shout.ico")
+                                Content = File.ReadAllBytes(@"../../Content/images/shout.ico")
                             };
-                            response.Header.ContentType = "image/*";
+                            response.Header.ContentType = "image/ico";
                             response.Header.ContentLength = response.Content.Length.ToString();
                             return response;
                         }
                     },
-
                     new Route()
                     {
                         Name = "Bootstrap JS",
@@ -43,7 +41,7 @@ namespace Shouter
                             var response = new HttpResponse()
                             {
                                 StatusCode = ResponseStatusCode.Ok,
-                                ContentAsUTF8 = File.ReadAllText("../../content/bootstrap/js/bootstrap.min.js")
+                                ContentAsUTF8 = File.ReadAllText("../../Content/bootstrap/js/bootstrap.min.js")
                             };
                             response.Header.ContentType = "application/x-javascript";
                             return response;
@@ -59,7 +57,7 @@ namespace Shouter
                             var response = new HttpResponse()
                             {
                                 StatusCode = ResponseStatusCode.Ok,
-                                ContentAsUTF8 = File.ReadAllText("../../content/jquery/jquery-3.1.1.js")
+                                ContentAsUTF8 = File.ReadAllText("../../Content/jquery/jquery-3.1.1.js")
                             };
                             response.Header.ContentType = "application/x-javascript";
                             return response;
@@ -75,7 +73,7 @@ namespace Shouter
                             var response = new HttpResponse()
                             {
                                 StatusCode = ResponseStatusCode.Ok,
-                                ContentAsUTF8 = File.ReadAllText("../../content/bootstrap/css/bootstrap.min.css")
+                                ContentAsUTF8 = File.ReadAllText("../../Content/bootstrap/css/bootstrap.min.css")
                             };
                             response.Header.ContentType = "text/css";
                             return response;

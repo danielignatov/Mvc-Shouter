@@ -1,14 +1,13 @@
-﻿using SimpleMVC.Interfaces;
-
-namespace Shouter.Views.Home
+﻿namespace Shouter.Views.Home
 {
-    using System.IO;
+    using SimpleMVC.Interfaces;
+    using Tools;
 
     public class Login : IRenderable
     {
         public string Render()
         {
-            return File.ReadAllText("../../content/login.html");
+            return FileRead.HtmlDocument("../../Content/login.html");
         }
     }
 }

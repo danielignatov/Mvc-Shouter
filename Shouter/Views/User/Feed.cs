@@ -1,17 +1,23 @@
-﻿using SimpleMVC.Interfaces.Generic;
-
-namespace Shouter.Views.User
+﻿namespace Shouter.Views.User
 {
+    using SimpleMVC.Interfaces.Generic;
     using System.Collections.Generic;
-    using System.IO;
     using System.Text;
+    using Tools;
     using ViewModels;
+
     public class Feed : IRenderable<List<ShoutViewModel>>
     {
+        #region Properties
+        public List<ShoutViewModel> Model { get; set; }
+        #endregion
+
+        #region Methods
         public string Render()
         {
-            string followersFeedHtml = File.ReadAllText("../../content/myFeed.html");
+            string followersFeedHtml = FileRead.HtmlDocument("../../Content/myFeed.html");
             StringBuilder pageBuilder = new StringBuilder();
+
             foreach (var shoutViewModel in this.Model)
             {
                 pageBuilder.Append($@"<form action=""/user/feed"" method=""POST"">
@@ -27,10 +33,11 @@ namespace Shouter.Views.User
                                     </div>
                                       </form>");
             }
+
             followersFeedHtml = followersFeedHtml.Replace("##feed##", pageBuilder.ToString());
+
             return followersFeedHtml;
         }
-
-        public List<ShoutViewModel> Model { get; set; }
+        #endregion
     }
 }

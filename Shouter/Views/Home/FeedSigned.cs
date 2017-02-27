@@ -1,18 +1,25 @@
-﻿using SimpleMVC.Interfaces.Generic;
-
-namespace Shouter.Views.Home
+﻿namespace Shouter.Views.Home
 {
+    using SimpleMVC.Interfaces.Generic;
+    using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Text;
+    using Tools;
     using ViewModels;
 
     public class FeedSigned : IRenderable<List<ShoutViewModel>>
     {
+        #region Properties
+        
+        public List<ShoutViewModel> Model { get; set; }
+        #endregion
+
+        #region Methods
         public string Render()
         {
-            string feedSignedInHtml = File.ReadAllText("../../content/feed-signed.html");
+            string feedSignedInHtml = FileRead.HtmlDocument("../../Content/feed-signed.html");
             StringBuilder pageBuilder = new StringBuilder();
+
             foreach (var shoutViewModel in this.Model)
             {
                 pageBuilder.Append($@"<div class=""thumbnail"">
@@ -24,10 +31,12 @@ namespace Shouter.Views.Home
 			                            <p>{shoutViewModel.Content}</p>
 		                            </div>");
             }
+
+            feedSignedInHtml = feedSignedInHtml.Replace("##username##", "Shouter");
             feedSignedInHtml = feedSignedInHtml.Replace("##feed##", pageBuilder.ToString());
+
             return feedSignedInHtml;
         }
-
-        public List<ShoutViewModel> Model { get; set; }
+        #endregion
     }
 }

@@ -1,17 +1,22 @@
-﻿using SimpleMVC.Interfaces.Generic;
-
-namespace Shouter.Views.Followers
+﻿namespace Shouter.Views.Followers
 {
-    using System.IO;
+    using SimpleMVC.Interfaces.Generic;
     using System.Text;
+    using Tools;
     using ViewModels;
+
     public class Profile : IRenderable<UserProfileViewModel>
     {
+        #region Properties
+        public UserProfileViewModel Model { get; set; }
+        #endregion
+
+        #region Methods
         public string Render()
         {
-            string profileHtml = File.ReadAllText("../../content/profile.html");
+            string profileHtml = FileRead.HtmlDocument("../../Content/profile.html");
             StringBuilder pageBuilder = new StringBuilder();
-           pageBuilder.Append($@"  <li class=""list-group-item"">
+            pageBuilder.Append($@"  <li class=""list-group-item"">
                 <form class=""form-group"" action=""/followers/profile"" method=""POST"">
                         <h2>
                             <strong>{Model.Username}</strong></h2>
@@ -19,6 +24,7 @@ namespace Shouter.Views.Followers
                 </form>
             </li>
             <h3>Shouts:</p>");
+
             foreach (var shoutViewModel in Model.Shouts)
             {
                 pageBuilder.Append($@"<div class=""thumbnail"">
@@ -30,10 +36,11 @@ namespace Shouter.Views.Followers
 			                            <p>{shoutViewModel.Content}</p>
 		                            </div>");
             }
+
             profileHtml = profileHtml.Replace("##profile##", pageBuilder.ToString());
+
             return profileHtml;
         }
-
-        public UserProfileViewModel Model { get; set; }
+        #endregion
     }
 }

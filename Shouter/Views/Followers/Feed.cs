@@ -3,16 +3,22 @@
 namespace Shouter.Views.Followers
 {
     using System.Collections.Generic;
-    using System.IO;
     using System.Text;
+    using Tools;
     using ViewModels;
 
     public class Feed : IRenderable<List<ShoutViewModel>>
     {
+        #region Properties
+        public List<ShoutViewModel> Model { get; set; }
+        #endregion
+
+        #region Methods
         public string Render()
         {
-            string followersFeedHtml = File.ReadAllText("../../content/followersFeed.html");
+            string followersFeedHtml = FileRead.HtmlDocument("../../Content/followersFeed.html");
             StringBuilder pageBuilder = new StringBuilder();
+
             foreach (var shoutViewModel in this.Model)
             {
                 pageBuilder.Append($@"<div class=""thumbnail"">
@@ -24,10 +30,11 @@ namespace Shouter.Views.Followers
 			                            <p>{shoutViewModel.Content}</p>
 		                            </div>");
             }
+
             followersFeedHtml = followersFeedHtml.Replace("##feed##", pageBuilder.ToString());
+
             return followersFeedHtml;
         }
-
-        public List<ShoutViewModel> Model { get; set; }
+        #endregion
     }
 }
